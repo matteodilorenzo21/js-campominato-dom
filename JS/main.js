@@ -1,7 +1,7 @@
 // JS LINK RUN CHECK
 console.log('JS RUNNING')
 
-// Dichiariamo una funzione che genererà le celle
+// Dichiariamo una funzione per generare le celle
 const createCell = (gameMode) => {
     const cell = document.createElement('div');
     cell.className = "cell";
@@ -15,6 +15,23 @@ const createCell = (gameMode) => {
     return cell;
 }
 
+// Dichiariamo una funzione per generare le bombe
+function generateBombs(numberOfBombs, maxNumber) {
+    let bombs = [];
+
+    while (bombs.length < numberOfBombs) {
+        let randomNumber;
+        do {
+            randomNumber = Math.floor(Math.random() * maxNumber) + 1;
+        } while (bombs.includes(randomNumber));
+
+        bombs.push(randomNumber);
+    }
+    
+    console.log('CHEATS') + console.table(bombs);
+    return bombs;
+}
+
 // Recuperiamo la griglia dal DOM
 const grid = document.getElementById('grid');
 
@@ -23,6 +40,12 @@ const playBtn = document.getElementById('play-btn');
 
 // Recuperiamo la select
 const difficultySelect = document.getElementById('difficulty-select');
+
+// Recuperiamo l'elemento in cui stampare lo score
+const scorePlaceholder = document.getElementById('score-placeholder');
+
+// Preparo il punteggio
+let score = 0;
 
 // Funzione per generare la griglia in base alla difficoltà selezionata
 const generateGrid = () => {
@@ -47,6 +70,12 @@ const generateGrid = () => {
     const totalCells = rows * cols;
     console.log('Celle generate: ' + totalCells);
 
+    // Dichiaro un array per le bombe
+    const bombs = generateBombs(16, totalCells);
+
+    // Imposto il punteggio massimo
+    const maxScore = totalCells - bombs.length;
+
     // Rimuoviamo tutte le celle precedenti
     grid.innerHTML = '';
 
@@ -56,8 +85,13 @@ const generateGrid = () => {
         cell.innerText = i + 1;
 
         cell.addEventListener('click', () => {
-            
-            cell.classList.add('clicked');
+            if (!cell.classList.contains('clicked')) {
+                cell.classList.add('clicked');
+                // Incrementa lo score
+                score++;
+                // stampa lo score
+                scorePlaceholder.innerText = score;
+            }
 
             console.log('Cella selezionata:', cell.innerText);
         });
@@ -74,4 +108,14 @@ const generateGrid = () => {
 grid.classList.add('d-none');
 
 // Aggiungiamo un event listener al bottone per generare la griglia
-playBtn.addEventListener('click', generateGrid);
+playBtn.addEventListener('click', function () {
+    // Riporta lo score a zero
+    score = 0;
+    // Aggiorna il valore al placeholder dello score
+    scorePlaceholder.innerText = score;
+
+    generateGrid();
+});
+
+
+
