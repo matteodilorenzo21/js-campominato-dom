@@ -1,5 +1,7 @@
-// JS LINK RUN CHECK
 console.log('JS RUNNING')
+
+//flag
+let gameOver = false;
 
 // Dichiariamo una funzione per generare le celle
 const createCell = (gameMode) => {
@@ -27,7 +29,7 @@ function generateBombs(numberOfBombs, maxNumber) {
 
         bombs.push(randomNumber);
     }
-    
+
     console.log('CHEATS') + console.table(bombs);
     return bombs;
 }
@@ -43,6 +45,10 @@ const difficultySelect = document.getElementById('difficulty-select');
 
 // Recuperiamo l'elemento in cui stampare lo score
 const scorePlaceholder = document.getElementById('score-placeholder');
+
+// Recupero l'elemento in cui stampare il messaggio
+const gameResult = document.getElementById('game-result');
+const displayScore = document.getElementById('display-score');
 
 // Preparo il punteggio
 let score = 0;
@@ -79,22 +85,57 @@ const generateGrid = () => {
     // Rimuoviamo tutte le celle precedenti
     grid.innerHTML = '';
 
+    // Funzione per gestire il clic sulla cella
+    const handleClick = (event) => {
+        const cell = event.target;
+        
+        if (!gameOver && !cell.classList.contains('clicked')) {
+            cell.classList.add('clicked');
+    
+            // Controlla se la cella cliccata è una bomba
+            if (bombs.includes(Number(cell.innerText))) {
+                gameOver = true;
+                cell.classList.add('bomb');
+                cell.innerText = '';
+                console.log('BOOM!');
+    
+                // Mostra tutte le altre bombe
+                const bombCells = document.querySelectorAll('.bomb');
+                bombCells.forEach(bombCell => {
+                    bombCell.innerText = '';
+                });
+    
+                // Rimuovi gli event listener dalle altre celle
+                const cells = document.getElementsByClassName('cell');
+                for (let i = 0; i < cells.length; i++) {
+                    cells[i].removeEventListener('click', handleClick);
+                }
+    
+                // Mostra il messaggio di perdita
+                gameResult.innerHTML = `<h2 class="text-danger fw-bold pb-0">YOU LOSE!</h2><hr><p class="text-center fw-bold">YOU SCORED: ${score}`;
+            } else {
+                // Incrementa lo score
+                score++;
+                // Stampa lo score
+                scorePlaceholder.innerText = score;
+    
+                // Controlla se l'utente ha vinto
+                if (score === maxScore) {
+                    gameOver = true;
+                    gameResult.innerHTML = `<h2 class="text-success fw-bold pb-0">YOU WON!</h2><hr><p class="text-center fw-bold">YOU SCORED: ${score}`;
+                }
+            }
+        }
+    
+        console.log('Cella selezionata:', cell.innerText);
+    };
+
     // Generiamo le celle in pagina
     for (let i = 0; i < totalCells; i++) {
         const cell = createCell(difficultySelect.value);
         cell.innerText = i + 1;
 
-        cell.addEventListener('click', () => {
-            if (!cell.classList.contains('clicked')) {
-                cell.classList.add('clicked');
-                // Incrementa lo score
-                score++;
-                // stampa lo score
-                scorePlaceholder.innerText = score;
-            }
-
-            console.log('Cella selezionata:', cell.innerText);
-        });
+        cell.addEventListener('click', handleClick);
 
         grid.appendChild(cell);
     }
@@ -102,6 +143,8 @@ const generateGrid = () => {
     // Mostrare la griglia
     grid.classList.remove('d-none');
     grid.classList.add('d-block', 'd-flex');
+    gameResult.innerText = "";
+    displayScore.innerText = "";
 }
 
 // Nascondiamo la griglia all'avvio
@@ -114,8 +157,8 @@ playBtn.addEventListener('click', function () {
     // Aggiorna il valore al placeholder dello score
     scorePlaceholder.innerText = score;
 
+    // Reimposta gameOver a false
+    gameOver = false;
+
     generateGrid();
 });
-
-
-
