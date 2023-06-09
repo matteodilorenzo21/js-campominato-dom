@@ -47,8 +47,8 @@ const difficultySelect = document.getElementById('difficulty-select');
 const scorePlaceholder = document.getElementById('score-placeholder');
 
 // Recupero l'elemento in cui stampare il messaggio
-const gameResult = document.getElementById('game-result');
-const displayScore = document.getElementById('display-score');
+let gameResult = document.getElementById('game-result');
+let displayScore = document.getElementById('display-score');
 
 // Preparo il punteggio
 let score = 0;
@@ -98,12 +98,6 @@ const generateGrid = () => {
                 cell.classList.add('bomb');
                 cell.innerText = '';
                 console.log('BOOM!');
-    
-                // Mostra tutte le altre bombe
-                const bombCells = document.querySelectorAll('.bomb');
-                bombCells.forEach(bombCell => {
-                    bombCell.innerText = '';
-                });
     
                 // Rimuovi gli event listener dalle altre celle
                 const cells = document.getElementsByClassName('cell');
